@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { Op } = require('sequelize'); // Import Op from Sequelize
+const { Op } = require('sequelize'); 
 const Contact = require('./models/Contact');
 const sequelize = require('./config/database');
 
@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 console.log('Contact Model:', Contact);
 console.log('Sequelize Instance:', sequelize);
 
-// Test database connection
+
 sequelize.authenticate()
     .then(() => {
         console.log('Database connected');
@@ -20,7 +20,7 @@ sequelize.authenticate()
         console.error('Database connection error:', err);
     });
 
-// Sync database
+
 sequelize.sync().then(() => {
     console.log('Database synced');
 }).catch((err) => {
@@ -32,7 +32,7 @@ app.post('/identify', async (req, res) => {
     const { email, phoneNumber } = req.body;
 
     try {
-        // Step 1: Find existing contacts
+        //  Find existing contacts
         const existingContacts = await Contact.findAll({
             where: {
                 [Op.or]: [
@@ -43,20 +43,20 @@ app.post('/identify', async (req, res) => {
         });
         console.log('Existing Contacts:', existingContacts.map(c => c.toJSON()));
 
-        // Step 2: Determine primary contact
+        //  Determine primary contact
         const primaryContact = await determinePrimaryContact(existingContacts);
         console.log('Primary Contact:', primaryContact?.toJSON());
 
-        // Step 3: Link new contact
+        //  Link new contact
         const newContact = await createOrLinkContact(email, phoneNumber, primaryContact);
         console.log('New Contact:', newContact?.toJSON());
 
-        // Step 4: Merge contact information
+        //  Merge contact information
         const allContacts = await getAllLinkedContacts(primaryContact || newContact);
         const emails = [...new Set(allContacts.map(c => c.email).filter(Boolean))];
         const phoneNumbers = [...new Set(allContacts.map(c => c.phoneNumber).filter(Boolean))];
 
-        // Step 5: Prepare response
+        //  Prepare response
         res.json({
             primaryContactId: (primaryContact || newContact).id,
             emails,
@@ -75,7 +75,7 @@ async function determinePrimaryContact(contacts) {
     const primaryContacts = contacts.filter(c => c.linkPrecedence === 'primary');
 
     if (primaryContacts.length === 0) {
-        return null; // No primary contact found
+        return null; // No primary contact not found
     }
 
     // Select the oldest primary contact
@@ -138,5 +138,5 @@ async function getAllLinkedContacts(primaryContact) {
 
 const PORT = 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://0.0.0.0:${PORT}`);
 });
